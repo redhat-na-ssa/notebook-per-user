@@ -1,0 +1,1 @@
+The demo files in here are based on the documentation: https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.16/html/managing_openshift_ai/creating-custom-workbench-images#creating-custom-workbench-images

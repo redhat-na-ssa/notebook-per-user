@@ -1,0 +1,4 @@
+apiVersion: v2
+name: single-user-jupyter
+version: 1.0.0
+description: Template for spinning up a Jupyter instance for a single user in their own namespace
