@@ -1,1 +1,0 @@
-{{- define "user" -}}{{ .Release.Namespace }}{{- end -}}

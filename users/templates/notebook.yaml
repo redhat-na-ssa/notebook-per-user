@@ -1,38 +1,17 @@
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  annotations:
-    openshift.io/description: ""
-    openshift.io/display-name: {{ .Release.Name }}-pvc
-  finalizers:
-  - kubernetes.io/pvc-protection
-  labels:
-    opendatahub.io/dashboard: "true"
-  name: {{ .Release.Name }}-pvc
-  namespace: {{ template "user" . }}
-spec:
-  accessModes:
-  - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: ocs-storagecluster-cephfs
-  volumeMode: Filesystem
----
 apiVersion: kubeflow.org/v1
 kind: Notebook
 metadata:
   annotations:
     notebooks.opendatahub.io/inject-oauth: "true"
-    openshift.io/description: "Workbench for {{ template "user" . }}"
-    openshift.io/display-name: {{ .Release.Name }}-{{ template "user" . }}-workbench
+    openshift.io/description: "Workbench for {{ .Release.Name }}"
+    openshift.io/display-name: {{ .Release.Name }}-workbench
   labels:
-    app: {{ .Release.Name }}-{{ template "user" . }}-workbench
+    app: {{ .Release.Name }}-workbench
     opendatahub.io/dashboard: "true"
     opendatahub.io/odh-managed: "true"
-  name: {{ .Release.Name }}-{{ template "user" . }}-workbench
-  namespace: {{ template "user" . }}
+  name: {{ .Release.Name }}-workbench
+  namespace: {{ .Release.Namespace }}
 spec:
   template:
     spec:
@@ -43,7 +22,7 @@ spec:
             --ServerApp.port=8888
             --ServerApp.token=''
             --ServerApp.password=''
-            --ServerApp.base_url=/notebook/{{ template "user" . }}/{{ .Release.Name }}-{{ template "user" . }}-workbench
+            --ServerApp.base_url=/notebook/{{ .Release.Namespace }}/{{ .Release.Name }}-workbench
             --ServerApp.quit_button=False
         - name: JUPYTER_IMAGE
           value: {{ .Values.image }}
@@ -62,14 +41,14 @@ spec:
         livenessProbe:
           failureThreshold: 3
           httpGet:
-            path: /notebook/{{ template "user" . }}/{{ .Release.Name }}-{{ template "user" . }}-workbench/api
+            path: /notebook/{{ .Release.Namespace }}/{{ .Release.Name }}-workbench/api
             port: notebook-port
             scheme: HTTP
           initialDelaySeconds: 30
           periodSeconds: 5
           successThreshold: 1
           timeoutSeconds: 1
-        name: {{ .Release.Name }}-{{ template "user" . }}-workbench
+        name: {{ .Release.Name }}-workbench
         ports:
         - containerPort: 8888
           name: notebook-port
@@ -77,7 +56,7 @@ spec:
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /notebook/{{ template "user" . }}/{{ .Release.Name }}-{{ template "user" . }}-workbench/api
+            path: /notebook/{{ .Release.Namespace }}/{{ .Release.Name }}-workbench/api
             port: notebook-port
             scheme: HTTP
           initialDelaySeconds: 30
@@ -90,8 +69,8 @@ spec:
         {{- end }}
         volumeMounts:
         - mountPath: /opt/app-root/src
-          name: {{ .Release.Name }}-pvc
-          subPath: {{ template "user" . }}
+          name: {{ .Release.Namespace }}-pvc
+          subPath: {{ .Release.Name }}
         - mountPath: /etc/pki/tls/custom-certs/ca-bundle.crt
           name: trusted-ca
           readOnly: true
@@ -101,7 +80,7 @@ spec:
         - --provider=openshift
         - --https-address=:8443
         - --http-address=
-        - --openshift-service-account={{ .Release.Name }}-{{ template "user" . }}-workbench
+        - --openshift-service-account={{ .Release.Name }}-workbench
         - --cookie-secret-file=/etc/oauth/config/cookie_secret
         - --cookie-expire=24h0m0s
         - --tls-cert=/etc/tls/private/tls.crt
@@ -110,7 +89,7 @@ spec:
         - --upstream-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - --email-domain=*
         - --skip-provider-button
-        - --openshift-sar={"verb":"get","resource":"notebooks","resourceAPIGroup":"kubeflow.org","resourceName":"{{ .Release.Name }}-{{ template "user" . }}-workbench","namespace":"$(NAMESPACE)"}
+        - --openshift-sar={"verb":"get","resource":"notebooks","resourceAPIGroup":"kubeflow.org","resourceName":"{{ .Release.Name }}-workbench","namespace":"$(NAMESPACE)"}
         env:
         - name: NAMESPACE
           valueFrom:
@@ -157,19 +136,19 @@ spec:
         - mountPath: /etc/tls/private
           name: tls-certificates
       enableServiceLinks: false
-      serviceAccountName: {{ .Release.Name }}-{{ template "user" . }}-workbench
+      serviceAccountName: {{ .Release.Name }}-workbench
       volumes:
-      - name: {{ .Release.Name }}-pvc
+      - name: {{ .Release.Namespace }}-pvc
         persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-pvc
+          claimName: {{ .Release.Namespace }}-pvc
       - name: oauth-config
         secret:
           defaultMode: 420
-          secretName: {{ .Release.Name }}-{{ template "user" . }}-workbench-oauth-config
+          secretName: {{ .Release.Name }}-workbench-oauth-config
       - name: tls-certificates
         secret:
           defaultMode: 420
-          secretName: {{ .Release.Name }}-{{ template "user" . }}-workbench-tls
+          secretName: {{ .Release.Name }}-workbench-tls
       - configMap:
           items:
             - key: ca-bundle.crt

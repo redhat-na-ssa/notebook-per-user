@@ -1,0 +1,23 @@
+{{ if not (lookup "v1" "PersistentVolumeClaim" .Release.Namespace (printf "%s-pvc" (.Release.Namespace))) -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    openshift.io/description: ""
+    openshift.io/display-name: {{ .Release.Namespace }}-pvc
+  finalizers:
+  - kubernetes.io/pvc-protection
+  labels:
+    opendatahub.io/dashboard: "true"
+  name: {{ .Release.Namespace }}-pvc
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ocs-storagecluster-cephfs
+  volumeMode: Filesystem
+{{- end }}
