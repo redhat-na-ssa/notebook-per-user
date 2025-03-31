@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: edit-no-notebooks
+aggregationRule:
+  clusterRoleSelectors:
+    - matchExpressions:
+        - key: rbac.authorization.k8s.io/aggregate-to-edit
+          operator: In
+          values:
+            - "true"
+        - key: app
+          operator: NotIn
+          values:
+            - odh-notebook-controller

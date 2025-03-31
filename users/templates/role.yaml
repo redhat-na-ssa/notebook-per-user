@@ -5,26 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
 rules:
   - verbs:
-      - list
-    apiGroups:
-      - datasciencepipelinesapplications.opendatahub.io
-    resources:
-      - datasciencepipelinesapplications
-  - verbs:
-      - get
-    apiGroups:
-      - ''
-    resources:
-      - namespaces
-  - verbs:
-      - get
-    apiGroups:
-      - project.openshift.io
-    resources:
-      - projects
-  - verbs:
       - get
       - patch
+      - update
     apiGroups:
       - kubeflow.org
     resources:
@@ -33,19 +16,8 @@ rules:
       - {{ .Release.Name }}-workbench
   - verbs:
       - list
+      - watch
     apiGroups:
       - kubeflow.org
     resources:
       - notebooks
-  - verbs:
-      - list
-    apiGroups:
-      - ''
-    resources:
-      - pods
-  - verbs:
-      - get
-    apiGroups:
-      - route.openshift.io
-    resources:
-      - routes
