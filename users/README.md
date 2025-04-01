@@ -1,8 +1,10 @@
 Run the helm install in a for loop across the list of students.
 ```
 helm package .
-helm install my-group -n my-class ./single-user-jupyter-1.0.0.tgz --create-namespace --set "users={testuser}"
+helm install my-group -n my-class ./single-user-jupyter-1.0.0.tgz --create-namespace --set "users={testuser}" --set "groups.mygroup={user1,user2}"
 ```
+
+Using the "users" value creates workbenches for each individual user. If instead you use "groups", give the group a name and specify the users in the group. The Helm chart will handle both in any combination.
 
 ## Alternate RBAC
 
